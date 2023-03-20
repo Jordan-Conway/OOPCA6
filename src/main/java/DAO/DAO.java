@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import Classes.Gemstone;
 
-public class DAO implements DAOInterface {
+public class DAO extends DAOBase implements DAOInterface {
     private Connection connection;
 
     @Override

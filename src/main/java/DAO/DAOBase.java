@@ -17,7 +17,8 @@ public class DAOBase {
             connection = DriverManager.getConnection(url, username, password);
         }
         catch(ClassNotFoundException e){
-            System.out.println("Encountered ClassNotFound Exception");
+            System.out.println("Encountered ClassNotFound Exception ");
+            e.printStackTrace();
             System.exit(1);
         }
         catch(SQLException e){

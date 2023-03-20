@@ -6,7 +6,7 @@ import Classes.Gemstone;
 public interface DAOInterface {
     List<Gemstone> findAllGemstones();
 
-    Gemstone findGemstoneById();
+    Gemstone findGemstoneById(int id);
 
     void deleteGemstoneById();
 

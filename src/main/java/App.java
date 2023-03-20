@@ -18,5 +18,8 @@ public class App {
 
         Gemstone foundById = dao.findGemstoneById(1);
         System.out.println(foundById);
+
+        dao.deleteGemstoneById(1);
+        System.out.println("Record deleted");
     }
 }

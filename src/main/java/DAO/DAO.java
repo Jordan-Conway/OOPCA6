@@ -14,9 +14,7 @@ public class DAO extends DAOBase implements DAOInterface {
     @Override
     public List<Gemstone> findAllGemstones(){
         ArrayList<Gemstone> allGemstones = new ArrayList<>();
-        try{
-            Connection connection = this.getConnection();
-
+        try(Connection connection = this.getConnection()){
             String query = "SELECT * FROM gemstones";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet =preparedStatement.executeQuery();
@@ -34,14 +32,14 @@ public class DAO extends DAOBase implements DAOInterface {
     @Override
     public Gemstone findGemstoneById(int id) {
         Gemstone stone = null;
-        try{
-            Connection connection = this.getConnection();
-
+        try(Connection connection = this.getConnection()){
             String query = "SELECT * FROM GEMSTONES WHERE id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
-            stone = processResults(resultSet).get(0);
+            if(resultSet.next()){
+                stone = processResults(resultSet).get(0);
+            }
             closeConnection(connection);
         }
         catch(SQLException e){
@@ -52,8 +50,16 @@ public class DAO extends DAOBase implements DAOInterface {
     }
 
     @Override
-    public void deleteGemstoneById() {
-
+    public void deleteGemstoneById(int id) {
+        try(Connection connection = this.getConnection()){
+            String query = "DELETE FROM gemstones WHERE id = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, id);
+            preparedStatement.execute();
+        }
+        catch(SQLException e){
+            System.out.println("SQL exception when deleting");
+        }
     }
 
     @Override

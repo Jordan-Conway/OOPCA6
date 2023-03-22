@@ -50,16 +50,20 @@ public class DAO extends DAOBase implements DAOInterface {
     }
 
     @Override
-    public void deleteGemstoneById(int id) {
+    public boolean deleteGemstoneById(int id) {
+        boolean success = false;
         try(Connection connection = this.getConnection()){
             String query = "DELETE FROM gemstones WHERE id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
-            preparedStatement.execute();
+            if(preparedStatement.executeUpdate() > 0){
+                success = true;
+            }
         }
         catch(SQLException e){
             System.out.println("SQL exception when deleting");
         }
+        return success;
     }
 
     @Override

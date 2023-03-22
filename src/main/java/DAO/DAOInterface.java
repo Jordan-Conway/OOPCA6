@@ -8,7 +8,7 @@ public interface DAOInterface {
 
     Gemstone findGemstoneById(int id);
 
-    void deleteGemstoneById(int id);
+    boolean deleteGemstoneById(int id);
 
     void insertGemstone(Gemstone gemstone);
 }

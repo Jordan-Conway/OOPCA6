@@ -1,21 +1,36 @@
-import Classes.Gemstone;
-import DAO.DAO;
+import DAO.GemstoneDAO;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.InputMismatchException;
-import java.util.List;
 import java.util.Scanner;
 
 public class App {
+    public static Socket socket;
+    public static OutputStream os;
+    public static PrintWriter out;
+    public static Scanner inStream;
     public static Scanner scanner = new Scanner(System.in);
-    public static DAO dao = new DAO();
+    public static GemstoneDAO dao = new GemstoneDAO();
     public static void main(String[] args) {
         App app = new App();
         app.start();
     }
 
     public void start() {
+        try{
+            socket = new Socket("localhost", 8080);
+            os = socket.getOutputStream();
+            out = new PrintWriter(os, true);
+            inStream = new Scanner(socket.getInputStream());
+        }
+        catch (IOException e){
+            System.out.println("Server is not running");
+            return;
+        }
+
         if(isRunning()){
             menu();
 
@@ -65,10 +80,13 @@ public class App {
     }
 
     public static void printAllGemstones(){
-        List<Gemstone> gemstones = dao.findAllGemstones();
-        for (Gemstone gemstone : gemstones) {
-            System.out.println(gemstone);
+        out.write("Get All\n");
+        out.flush();
+
+        while(inStream.hasNextLine()){
+            System.out.println(inStream.nextLine());
         }
+
     }
 
     public static void printGemstoneById(){

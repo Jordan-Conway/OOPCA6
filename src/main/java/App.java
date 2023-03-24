@@ -1,19 +1,24 @@
-import DAO.GemstoneDAO;
+import Classes.Gemstone;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class App {
-    public static Socket socket;
-    public static OutputStream os;
-    public static PrintWriter out;
-    public static Scanner inStream;
-    public static Scanner scanner = new Scanner(System.in);
-    public static GemstoneDAO dao = new GemstoneDAO();
+    public Socket socket;
+    public OutputStream os;
+    public PrintWriter out;
+    public Scanner inStream;
+    public Scanner scanner = new Scanner(System.in);
+    public static Gson gsonParser = new Gson();
+
     public static void main(String[] args) {
         App app = new App();
         app.start();
@@ -32,10 +37,7 @@ public class App {
         }
 
         if(isRunning()){
-            menu();
-
-            dao.deleteGemstoneById(1);
-            System.out.println("Record deleted");
+            this.menu();
         }
         else{
             System.out.println("MySQL is not running");
@@ -55,7 +57,7 @@ public class App {
         return running;
     }
 
-    public static void menu(){
+    public void menu(){
         int input;
         boolean exit = false;
         while(!exit){
@@ -64,12 +66,12 @@ public class App {
                 System.out.println("1. List all Gemstones");
                 System.out.println("2. Search Gemstone By Id");
                 System.out.println("3. Delete Gemstone By Id");
-                input = scanner.nextInt();
+                input = this.scanner.nextInt();
                 scanner.nextLine();
                 switch (input) {
                     case 1 -> printAllGemstones();
                     case 2 -> printGemstoneById();
-                    case 3 -> deleteGemstoneById();
+//                    case 3 -> deleteGemstoneById();
                     case 0 -> exit = true;
                 }
             }
@@ -79,54 +81,68 @@ public class App {
         }
     }
 
-    public static void printAllGemstones(){
+    public void printAllGemstones(){
         out.write("Get All\n");
         out.flush();
 
-        while(inStream.hasNextLine()){
-            System.out.println(inStream.nextLine());
-        }
+        ArrayList<Gemstone> gemstones;
+        Type gemstoneTypeToken = new TypeToken<ArrayList<Gemstone>>(){}.getType();
+        gemstones = gsonParser.fromJson(inStream.nextLine(), gemstoneTypeToken);
 
+        for(Gemstone gemstone: gemstones){
+            System.out.println(gemstone);
+        }
     }
 
-    public static void printGemstoneById(){
+    public void printGemstoneById(){
         int input;
-        while (true){
-            try{
+        while (true) {
+            try {
                 System.out.println("Enter the id to search for or enter -1 to exit");
                 input = scanner.nextInt();
                 scanner.nextLine();
-                if(input != -1){
-                    System.out.println(dao.findGemstoneById(input));
-                }
-                break;
-            }
-            catch (InputMismatchException e){
+                break; //If we get this far, we have a valid input and can stop asking for new inputs
+            } catch (InputMismatchException e) {
                 System.out.println("Incorrect input please try again");
             }
+        }
+        if (input == -1) {
+            return;
+        }
+
+        out.write("Get By Id: " + input + "\n");
+        out.flush();
+
+        Gemstone result = gsonParser.fromJson(inStream.nextLine(), Gemstone.class);
+
+        if(result != null){ //if a result was found
+            System.out.println(result);
+        }
+        else{ //Nothing was found
+            System.out.println("No gemstone was found with id " + input);
         }
     }
 
-    public static void deleteGemstoneById(){
-        int input;
-        while (true){
-            try{
-                System.out.println("Enter the id to search for or enter -1 to exit");
-                input = scanner.nextInt();
-                scanner.nextLine();
-                if(input != -1){
-                    if(dao.deleteGemstoneById(input)){
-                        System.out.println("Deleted gemstone with id " + input);
-                    }
-                    else{
-                        System.out.println("Failed to delete gemstone with id " + input);
-                    }
-                }
-                break;
-            }
-            catch (InputMismatchException e){
-                System.out.println("Incorrect input please try again");
-            }
-        }
-    }
+//    public static void deleteGemstoneById(){
+//        int input;
+//        while (true){
+//            try{
+//                System.out.println("Enter the id to search for or enter -1 to exit");
+//                input = scanner.nextInt();
+//                scanner.nextLine();
+//                if(input != -1){
+//                    if(dao.deleteGemstoneById(input)){
+//                        System.out.println("Deleted gemstone with id " + input);
+//                    }
+//                    else{
+//                        System.out.println("Failed to delete gemstone with id " + input);
+//                    }
+//                }
+//                break;
+//            }
+//            catch (InputMismatchException e){
+//                System.out.println("Incorrect input please try again");
+//            }
+//        }
+//    }
 }

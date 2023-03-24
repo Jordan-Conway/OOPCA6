@@ -1,8 +1,10 @@
 package server;
 
 import Classes.Gemstone;
+import Classes.Request;
 import DAO.GemstoneDAO;
 
+import Enums.RequestType;
 import com.google.gson.*;
 import java.io.*;
 import java.net.Socket;
@@ -37,12 +39,13 @@ public class ClientHandler implements Runnable{
         try{
             while((command = socketReader.readLine()) != null){
                 System.out.println("Read command: " + command);
-                if(command.equals("Get All")){
+                Request request = gsonParser.fromJson(command, Request.class);
+                if(request.getRequestType() == RequestType.GETALL){
                     returnAll();
                 }
-                else if(command.startsWith("Get By Id: ")){
+                else if(request.getRequestType() == RequestType.GETBYID){
                     try{
-                        int id = Integer.parseInt(command.split("Get By Id: ")[1]);
+                        int id = Integer.parseInt(request.getParameter());
                         returnById(id);
                     }
                     catch (ArrayIndexOutOfBoundsException e){
@@ -84,7 +87,6 @@ public class ClientHandler implements Runnable{
     public void returnById(int id){
         Gemstone gemstone = dao.findGemstoneById(id);
         String resultJSON = gsonParser.toJson(gemstone);
-        System.out.println(resultJSON);
         socketWriter.println(resultJSON);
     }
 }

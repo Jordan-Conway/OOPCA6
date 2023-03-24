@@ -1,24 +1,26 @@
 package Classes;
 
+import Enums.RequestType;
+
 public class Request {
-    private String requestType;
+    private RequestType requestType;
     private String parameter;
 
-    public Request(String requestType) {
+    public Request(RequestType requestType) {
         this.requestType = requestType;
         this.parameter = null;
     }
 
-    public Request(String requestType, String parameter) {
+    public Request(RequestType requestType, String parameter) {
         this.requestType = requestType;
         this.parameter = parameter;
     }
 
-    public String getRequestType() {
+    public RequestType getRequestType() {
         return requestType;
     }
 
-    public void setRequestType(String requestType) {
+    public void setRequestType(RequestType requestType) {
         this.requestType = requestType;
     }
 

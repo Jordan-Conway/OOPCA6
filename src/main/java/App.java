@@ -1,4 +1,6 @@
 import Classes.Gemstone;
+import Classes.Request;
+import Enums.RequestType;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -82,7 +84,9 @@ public class App {
     }
 
     public void printAllGemstones(){
-        out.write("Get All\n");
+        Request request = new Request(RequestType.GETALL);
+        String requestJson = gsonParser.toJson(request);
+        out.write(requestJson + "\n");
         out.flush();
 
         ArrayList<Gemstone> gemstones;
@@ -110,7 +114,9 @@ public class App {
             return;
         }
 
-        out.write("Get By Id: " + input + "\n");
+        Request request = new Request(RequestType.GETBYID, Integer.toString(input));
+        String requestJSON = gsonParser.toJson(request);
+        out.write(requestJSON + "\n");
         out.flush();
 
         Gemstone result = gsonParser.fromJson(inStream.nextLine(), Gemstone.class);

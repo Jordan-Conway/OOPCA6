@@ -29,6 +29,11 @@ public class GemstoneDAO extends DAOBase implements DAOInterface {
         return allGemstones;
     }
 
+    /**
+     *
+     * @param id the id of the gemstone to be found
+     * @return a Gemstone Object representing the first entry in the database with the matching id or null if no entries are found
+     */
     @Override
     public Gemstone findGemstoneById(int id) {
         Gemstone stone = null;
@@ -37,7 +42,8 @@ public class GemstoneDAO extends DAOBase implements DAOInterface {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if(resultSet.next()){
+
+            if(resultSet.isBeforeFirst()){ //If results are found
                 stone = processResults(resultSet).get(0);
             }
             closeConnection(connection);
@@ -45,7 +51,6 @@ public class GemstoneDAO extends DAOBase implements DAOInterface {
         catch(SQLException e){
             System.out.println("SQL exception when getting by id");
         }
-
         return stone;
     }
 

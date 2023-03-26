@@ -27,4 +27,20 @@ public class Gemstone {
                 ", clarity=" + clarity +
                 '}';
     }
+
+    public String getGemName() {
+        return gemName;
+    }
+
+    public double getCarats() {
+        return carats;
+    }
+
+    public String getColour() {
+        return colour;
+    }
+
+    public Clarity getClarity() {
+        return clarity;
+    }
 }

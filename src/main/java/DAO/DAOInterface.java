@@ -10,5 +10,5 @@ public interface DAOInterface {
 
     boolean deleteGemstoneById(int id);
 
-    void insertGemstone(Gemstone gemstone);
+    boolean insertGemstone(Gemstone gemstone);
 }

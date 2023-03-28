@@ -4,7 +4,6 @@ import Classes.Gemstone;
 import Classes.Request;
 import DAO.GemstoneDAO;
 
-import Enums.RequestType;
 import com.google.gson.*;
 import java.io.*;
 import java.net.Socket;
@@ -40,27 +39,29 @@ public class ClientHandler implements Runnable{
             while((command = socketReader.readLine()) != null){
                 System.out.println("Read command: " + command);
                 Request request = gsonParser.fromJson(command, Request.class);
-                if(request.getRequestType() == RequestType.GETALL){
-                    returnAll();
-                }
-                else if(request.getRequestType() == RequestType.GETBYID){
-                    try{
-                        int id = Integer.parseInt(request.getParameter());
-                        returnById(id);
+
+                switch (request.getRequestType()){
+                    case GETALL -> returnAll();
+                    case GETBYID -> {
+                        try {
+                            int id = Integer.parseInt(request.getParameter());
+                            returnById(id);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            System.out.println("No id was given");
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid Id was given");
+                        }
                     }
-                    catch (ArrayIndexOutOfBoundsException e){
-                        System.out.println("No id was given");
+                    case INSERT -> {
+                        Gemstone gemstone = gsonParser.fromJson(request.getParameter(), Gemstone.class);
+                        insert(gemstone);
                     }
-                    catch (NumberFormatException e){
-                        System.out.println("Invalid Id was given");
+                    case DELETE -> {
+                        int IdToDelete = gsonParser.fromJson(request.getParameter(), Integer.class);
+                        delete(IdToDelete);
                     }
-                }
-                else if(request.getRequestType() == RequestType.INSERT){
-                    Gemstone gemstone = gsonParser.fromJson(request.getParameter(), Gemstone.class);
-                    insert(gemstone);
-                }
-                else{
-                    System.out.println("Invalid command");
+                    default -> System.out.println("Invalid command");
+
                 }
             }
             this.socket.close();
@@ -95,7 +96,6 @@ public class ClientHandler implements Runnable{
     }
 
     public void insert(Gemstone gemstone){
-        System.out.println(gemstone);
         boolean success = dao.insertGemstone(gemstone);
         String response;
         if(success){
@@ -103,6 +103,18 @@ public class ClientHandler implements Runnable{
         }
         else{
             response = "Insert failed";
+        }
+        socketWriter.println(gsonParser.toJson(response));
+    }
+
+    public void delete(int id){
+        boolean success = dao.deleteGemstoneById(id);
+        String response;
+        if(success){
+            response = "Delete was successful";
+        }
+        else{
+            response = "Delete failed";
         }
         socketWriter.println(gsonParser.toJson(response));
     }

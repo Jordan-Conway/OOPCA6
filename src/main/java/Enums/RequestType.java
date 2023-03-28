@@ -3,5 +3,6 @@ package Enums;
 public enum RequestType {
     GETALL,
     GETBYID,
-    INSERT
+    INSERT,
+    DELETE
 }

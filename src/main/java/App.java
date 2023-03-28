@@ -72,7 +72,7 @@ public class App {
                 switch (input) {
                     case 1 -> printAllGemstones();
                     case 2 -> printGemstoneById();
-//                    case 3 -> deleteGemstoneById();
+                    case 3 -> deleteGemstoneById();
                     case 4 -> insertGemstone();
                     case 0 -> exit = true;
                 }
@@ -160,26 +160,24 @@ public class App {
         System.out.println(response);
     }
 
-//    public static void deleteGemstoneById(){
-//        int input;
-//        while (true){
-//            try{
-//                System.out.println("Enter the id to search for or enter -1 to exit");
-//                input = scanner.nextInt();
-//                scanner.nextLine();
-//                if(input != -1){
-//                    if(dao.deleteGemstoneById(input)){
-//                        System.out.println("Deleted gemstone with id " + input);
-//                    }
-//                    else{
-//                        System.out.println("Failed to delete gemstone with id " + input);
-//                    }
-//                }
-//                break;
-//            }
-//            catch (InputMismatchException e){
-//                System.out.println("Incorrect input please try again");
-//            }
-//        }
-//    }
+    public void deleteGemstoneById(){
+        int input;
+        while (true){
+            try{
+                System.out.println("Enter the id to search for or enter -1 to exit");
+                input = scanner.nextInt();
+                scanner.nextLine();
+                Request request = new Request(RequestType.DELETE, Integer.toString(input));
+                out.println(gsonParser.toJson(request));
+
+                String response = gsonParser.fromJson(inStream.nextLine(), String.class);
+
+                System.out.println(response);
+                break;
+            }
+            catch (InputMismatchException e){
+                System.out.println("Incorrect input please try again");
+            }
+        }
+    }
 }

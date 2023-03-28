@@ -55,6 +55,10 @@ public class ClientHandler implements Runnable{
                         System.out.println("Invalid Id was given");
                     }
                 }
+                else if(request.getRequestType() == RequestType.INSERT){
+                    Gemstone gemstone = gsonParser.fromJson(request.getParameter(), Gemstone.class);
+                    insert(gemstone);
+                }
                 else{
                     System.out.println("Invalid command");
                 }
@@ -89,4 +93,18 @@ public class ClientHandler implements Runnable{
         String resultJSON = gsonParser.toJson(gemstone);
         socketWriter.println(resultJSON);
     }
+
+    public void insert(Gemstone gemstone){
+        System.out.println(gemstone);
+        boolean success = dao.insertGemstone(gemstone);
+        String response;
+        if(success){
+            response = "Insert was successful";
+        }
+        else{
+            response = "Insert failed";
+        }
+        socketWriter.println(gsonParser.toJson(response));
+    }
+
 }

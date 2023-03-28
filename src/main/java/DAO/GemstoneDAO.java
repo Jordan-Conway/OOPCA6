@@ -75,19 +75,20 @@ public class GemstoneDAO extends DAOBase implements DAOInterface {
     public boolean insertGemstone(Gemstone gemstone) {
         boolean success = false;
         try(Connection connection = this.getConnection()){
-            String query = "INSERT INTO gemstones VALUES (null, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO gemstones (gemName, carats, colour, clarity) VALUES (?, ?, ?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(2, gemstone.getGemName());
-            preparedStatement.setDouble(3, gemstone.getCarats());
-            preparedStatement.setString(4, gemstone.getColour());
-            preparedStatement.setString(5, gemstone.getClarity().toString());
-
+            preparedStatement.setString(1, gemstone.getGemName());
+            preparedStatement.setDouble(2, (Math.round(gemstone.getCarats() * 100))/100.0);
+            preparedStatement.setString(3, gemstone.getColour());
+            preparedStatement.setString(4, gemstone.getClarity().toString());
+            System.out.println(preparedStatement);
             if(preparedStatement.executeUpdate() > 0){
                 success = true;
             }
         }
         catch(SQLException e){
             System.out.println("SQL exception when inserting");
+            e.printStackTrace();
         }
 
         return success;

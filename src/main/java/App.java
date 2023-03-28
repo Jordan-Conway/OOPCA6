@@ -1,5 +1,6 @@
 import Classes.Gemstone;
 import Classes.Request;
+import Enums.Clarity;
 import Enums.RequestType;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -9,9 +10,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 public class App {
     public Socket socket;
@@ -74,6 +73,7 @@ public class App {
                     case 1 -> printAllGemstones();
                     case 2 -> printGemstoneById();
 //                    case 3 -> deleteGemstoneById();
+                    case 4 -> insertGemstone();
                     case 0 -> exit = true;
                 }
             }
@@ -127,6 +127,37 @@ public class App {
         else{ //Nothing was found
             System.out.println("No gemstone was found with id " + input);
         }
+    }
+
+    public void insertGemstone(){
+        //TODO input validation
+        System.out.println("Enter the gemstone name");
+        String name = scanner.nextLine();
+        System.out.println("Enter the number of carats");
+        float carats = scanner.nextFloat();
+        scanner.nextLine();
+        System.out.println("Enter the colour of the gemstone");
+        String colour = scanner.nextLine();
+        System.out.println("Choose a clarity");
+        List<Clarity> clarityList = Arrays.asList(Clarity.values());
+        for(int i=0; i<clarityList.size(); i++){
+            System.out.println(i + 1 + ": " + clarityList.get(i));
+        }
+        Clarity clarity = clarityList.get(scanner.nextInt() - 1);
+
+        Gemstone gemstoneToInsert = new Gemstone(0, name, carats, colour, clarity);
+
+        String gemstoneToInsertJSON = gsonParser.toJson(gemstoneToInsert);
+
+        Request request = new Request(RequestType.INSERT, gemstoneToInsertJSON);
+        String requestJSON = gsonParser.toJson(request);
+
+        out.write(requestJSON + "\n");
+        out.flush();
+
+        String response = gsonParser.fromJson(inStream.nextLine(), String.class);
+
+        System.out.println(response);
     }
 
 //    public static void deleteGemstoneById(){

@@ -38,8 +38,10 @@ public class ClientHandler implements Runnable{
         try{
             while((command = socketReader.readLine()) != null){
                 System.out.println("Read command: " + command);
+                if(command.equals("")){
+                    break;
+                }
                 Request request = gsonParser.fromJson(command, Request.class);
-
                 switch (request.getRequestType()){
                     case GETALL -> returnAll();
                     case GETBYID -> {

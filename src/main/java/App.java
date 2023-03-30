@@ -1,5 +1,6 @@
 import Classes.Gemstone;
 import Classes.Request;
+import Comparators.GemstoneCaratComparator;
 import Enums.Clarity;
 import Enums.RequestType;
 import com.google.gson.Gson;
@@ -11,6 +12,8 @@ import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.Socket;
 import java.util.*;
+
+import static Classes.Gemstone.printGemstones;
 
 public class App {
     public Socket socket;
@@ -67,6 +70,8 @@ public class App {
                 System.out.println("1. List all Gemstones");
                 System.out.println("2. Search Gemstone By Id");
                 System.out.println("3. Delete Gemstone By Id");
+                System.out.println("4. Add a new Gemstone");
+                System.out.println("5. List all Gemstones sorted by carats");
                 input = this.scanner.nextInt();
                 scanner.nextLine();
                 switch (input) {
@@ -74,6 +79,7 @@ public class App {
                     case 2 -> printGemstoneById();
                     case 3 -> deleteGemstoneById();
                     case 4 -> insertGemstone();
+                    case 5 -> printAllGemstones(new GemstoneCaratComparator());
                     case 0 -> exit = true;
                 }
             }
@@ -83,19 +89,28 @@ public class App {
         }
     }
 
-    public void printAllGemstones(){
+    public ArrayList<Gemstone> getAllGemstones(){
         Request request = new Request(RequestType.GETALL);
         String requestJson = gsonParser.toJson(request);
         out.write(requestJson + "\n");
         out.flush();
 
-        ArrayList<Gemstone> gemstones;
         Type gemstoneTypeToken = new TypeToken<ArrayList<Gemstone>>(){}.getType();
-        gemstones = gsonParser.fromJson(inStream.nextLine(), gemstoneTypeToken);
+        return(gsonParser.fromJson(inStream.nextLine(), gemstoneTypeToken));
+    }
 
-        for(Gemstone gemstone: gemstones){
-            System.out.println(gemstone);
-        }
+    public void printAllGemstones(){
+        ArrayList<Gemstone> gemstones = getAllGemstones();
+
+        printGemstones(gemstones);
+    }
+
+    public void printAllGemstones(Comparator<Gemstone> comparator){
+        ArrayList<Gemstone> gemstones = getAllGemstones();
+
+        gemstones.sort(comparator);
+
+        printGemstones(gemstones);
     }
 
     public void printGemstoneById(){

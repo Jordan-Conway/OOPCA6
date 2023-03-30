@@ -2,12 +2,14 @@ package Classes;
 
 import Enums.Clarity;
 
+import java.util.Collection;
+
 public class Gemstone {
-    private int id;
-    private String gemName;
-    private double carats;
-    private String colour;
-    private Clarity clarity;
+    private final int id;
+    private final String gemName;
+    private final double carats;
+    private final String colour;
+    private final Clarity clarity;
 
     public Gemstone(int id, String name, double carats, String colour, Clarity clarity){
         this.id = id;
@@ -42,5 +44,11 @@ public class Gemstone {
 
     public Clarity getClarity() {
         return clarity;
+    }
+
+    public static void printGemstones(Collection<Gemstone> gemstones){
+        for(Gemstone gemstone: gemstones){
+            System.out.println(gemstone);
+        }
     }
 }

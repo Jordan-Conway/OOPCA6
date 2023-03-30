@@ -9,6 +9,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.List;
+import java.util.Set;
 
 
 public class ClientHandler implements Runnable{
@@ -62,6 +63,7 @@ public class ClientHandler implements Runnable{
                         int IdToDelete = gsonParser.fromJson(request.getParameter(), Integer.class);
                         delete(IdToDelete);
                     }
+                    case GETIDS -> getIds();
                     default -> System.out.println("Invalid command");
 
                 }
@@ -119,6 +121,13 @@ public class ClientHandler implements Runnable{
             response = "Delete failed";
         }
         socketWriter.println(gsonParser.toJson(response));
+    }
+
+    public void getIds(){
+        Set<Integer> ids = dao.getIds();
+        String idsJSON = gsonParser.toJson(ids);
+
+        socketWriter.println(idsJSON);
     }
 
 }

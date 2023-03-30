@@ -5,7 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import Classes.Gemstone;
 import Enums.Clarity;
 
@@ -81,7 +84,6 @@ public class GemstoneDAO extends DAOBase implements DAOInterface {
             preparedStatement.setDouble(2, (Math.round(gemstone.getCarats() * 100))/100.0);
             preparedStatement.setString(3, gemstone.getColour());
             preparedStatement.setString(4, gemstone.getClarity().toString());
-            System.out.println(preparedStatement);
             if(preparedStatement.executeUpdate() > 0){
                 success = true;
             }
@@ -92,6 +94,24 @@ public class GemstoneDAO extends DAOBase implements DAOInterface {
         }
 
         return success;
+    }
+
+    public Set<Integer> getIds(){
+        Set<Integer> ids = new HashSet<>();
+        try(Connection connection = this.getConnection()){
+            String query = "SELECT id FROM gemstones";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet results = preparedStatement.executeQuery();
+
+            while (results.next()){
+                ids.add(results.getInt("id"));
+            }
+        }
+        catch (SQLException e){
+            System.out.println("SQL exception when getting ids");
+        }
+
+        return ids;
     }
 
     private ArrayList<Gemstone> processResults(ResultSet resultSet){

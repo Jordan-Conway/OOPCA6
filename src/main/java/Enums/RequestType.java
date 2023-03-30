@@ -4,5 +4,6 @@ public enum RequestType {
     GETALL,
     GETBYID,
     INSERT,
-    DELETE
+    DELETE,
+    GETIDS
 }

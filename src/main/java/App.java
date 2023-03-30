@@ -23,12 +23,15 @@ public class App {
     public Scanner scanner = new Scanner(System.in);
     public static Gson gsonParser = new Gson();
 
+    private Set<Integer> cache;
+
     public static void main(String[] args) {
         App app = new App();
         app.start();
     }
 
     public void start() {
+        this.cache = getCache();
         try{
             socket = new Socket("localhost", 8080);
             os = socket.getOutputStream();
@@ -59,6 +62,16 @@ public class App {
             running = false;
         }
         return running;
+    }
+
+    private Set<Integer> getCache(){
+        Request request = new Request(RequestType.GETIDS);
+
+        String requestJSON = gsonParser.toJson(request);
+        out.println(requestJSON);
+        out.flush();
+
+        return gsonParser.fromJson(inStream.nextLine(), Set.class);
     }
 
     public void menu(){
@@ -131,19 +144,20 @@ public class App {
             return;
         }
 
-        Request request = new Request(RequestType.GETBYID, Integer.toString(input));
-        String requestJSON = gsonParser.toJson(request);
-        out.write(requestJSON + "\n");
-        out.flush();
+        if(this.cache.contains(input)){
+            Request request = new Request(RequestType.GETBYID, Integer.toString(input));
+            String requestJSON = gsonParser.toJson(request);
+            out.write(requestJSON + "\n");
+            out.flush();
 
-        Gemstone result = gsonParser.fromJson(inStream.nextLine(), Gemstone.class);
+            Gemstone result = gsonParser.fromJson(inStream.nextLine(), Gemstone.class);
 
-        if(result != null){ //if a result was found
-            System.out.println(result);
+            if(result != null){ //if a result was found
+                System.out.println(result);
+                return;
+            }
         }
-        else{ //Nothing was found
-            System.out.println("No gemstone was found with id " + input);
-        }
+        System.out.println("No gemstone was found with id " + input);
     }
 
     public void insertGemstone(){

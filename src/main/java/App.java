@@ -107,6 +107,14 @@ public class App {
         printGemstones(gemstones);
     }
 
+    public ArrayList<Gemstone> filterGemstonesByCarats(double carats){
+        ArrayList<Gemstone> gemstones = getAllGemstones();
+
+        gemstones.removeIf(s -> s.getCarats() < carats);
+
+        return gemstones;
+    }
+
     public void printGemstoneById(){
         int input;
         while (true) {

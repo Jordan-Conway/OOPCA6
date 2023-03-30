@@ -75,7 +75,7 @@ public class App {
                 input = this.scanner.nextInt();
                 scanner.nextLine();
                 switch (input) {
-                    case 1 -> printAllGemstones();
+                    case 1 -> printGemstones(getAllGemstones());
                     case 2 -> printGemstoneById();
                     case 3 -> deleteGemstoneById();
                     case 4 -> insertGemstone();
@@ -97,12 +97,6 @@ public class App {
 
         Type gemstoneTypeToken = new TypeToken<ArrayList<Gemstone>>(){}.getType();
         return(gsonParser.fromJson(inStream.nextLine(), gemstoneTypeToken));
-    }
-
-    public void printAllGemstones(){
-        ArrayList<Gemstone> gemstones = getAllGemstones();
-
-        printGemstones(gemstones);
     }
 
     public void printAllGemstones(Comparator<Gemstone> comparator){

@@ -1,5 +1,4 @@
 import Classes.Gemstone;
-import Classes.Request;
 import Comparators.GemstoneCaratComparator;
 import Enums.Clarity;
 import Enums.RequestType;
@@ -9,7 +8,6 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Type;
 import java.net.Socket;
 import java.util.*;
 
@@ -25,18 +23,21 @@ public class App {
 
     private Set<Integer> cache;
 
+    private RequestHandler requestHandler;
+
     public static void main(String[] args) {
         App app = new App();
         app.start();
     }
 
     public void start() {
-        this.cache = getCache();
         try{
             socket = new Socket("localhost", 8080);
             os = socket.getOutputStream();
             out = new PrintWriter(os, true);
             inStream = new Scanner(socket.getInputStream());
+            this.requestHandler = new RequestHandler(out, inStream);
+            this.cache = getCache();
         }
         catch (IOException e){
             System.out.println("Server is not running");
@@ -65,13 +66,7 @@ public class App {
     }
 
     private Set<Integer> getCache(){
-        Request request = new Request(RequestType.GETIDS);
-
-        String requestJSON = gsonParser.toJson(request);
-        out.println(requestJSON);
-        out.flush();
-
-        return gsonParser.fromJson(inStream.nextLine(), Set.class);
+        return gsonParser.fromJson(requestHandler.makeRequest(RequestType.GETIDS), TypeToken.getParameterized(Set.class, Integer.class).getType());
     }
 
     public void menu(){
@@ -103,13 +98,7 @@ public class App {
     }
 
     public ArrayList<Gemstone> getAllGemstones(){
-        Request request = new Request(RequestType.GETALL);
-        String requestJson = gsonParser.toJson(request);
-        out.write(requestJson + "\n");
-        out.flush();
-
-        Type gemstoneTypeToken = new TypeToken<ArrayList<Gemstone>>(){}.getType();
-        return(gsonParser.fromJson(inStream.nextLine(), gemstoneTypeToken));
+        return gsonParser.fromJson(requestHandler.makeRequest(RequestType.GETALL), TypeToken.getParameterized(ArrayList.class, Gemstone.class).getType());
     }
 
     public void printAllGemstones(Comparator<Gemstone> comparator){
@@ -118,14 +107,6 @@ public class App {
         gemstones.sort(comparator);
 
         printGemstones(gemstones);
-    }
-
-    public ArrayList<Gemstone> filterGemstonesByCarats(double carats){
-        ArrayList<Gemstone> gemstones = getAllGemstones();
-
-        gemstones.removeIf(s -> s.getCarats() < carats);
-
-        return gemstones;
     }
 
     public void printGemstoneById(){
@@ -145,12 +126,7 @@ public class App {
         }
 
         if(this.cache.contains(input)){
-            Request request = new Request(RequestType.GETBYID, Integer.toString(input));
-            String requestJSON = gsonParser.toJson(request);
-            out.write(requestJSON + "\n");
-            out.flush();
-
-            Gemstone result = gsonParser.fromJson(inStream.nextLine(), Gemstone.class);
+            Gemstone result = gsonParser.fromJson(requestHandler.makeRequest(RequestType.GETBYID, input), Gemstone.class);
 
             if(result != null){ //if a result was found
                 System.out.println(result);
@@ -180,13 +156,7 @@ public class App {
 
         String gemstoneToInsertJSON = gsonParser.toJson(gemstoneToInsert);
 
-        Request request = new Request(RequestType.INSERT, gemstoneToInsertJSON);
-        String requestJSON = gsonParser.toJson(request);
-
-        out.write(requestJSON + "\n");
-        out.flush();
-
-        String response = gsonParser.fromJson(inStream.nextLine(), String.class);
+        String response = gsonParser.fromJson(requestHandler.makeRequest(RequestType.INSERT, gemstoneToInsertJSON), String.class);
 
         System.out.println(response);
     }
@@ -198,10 +168,8 @@ public class App {
                 System.out.println("Enter the id to search for or enter -1 to exit");
                 input = scanner.nextInt();
                 scanner.nextLine();
-                Request request = new Request(RequestType.DELETE, Integer.toString(input));
-                out.println(gsonParser.toJson(request));
 
-                String response = gsonParser.fromJson(inStream.nextLine(), String.class);
+                String response = gsonParser.fromJson(requestHandler.makeRequest(RequestType.DELETE, input), String.class);
 
                 System.out.println(response);
                 break;

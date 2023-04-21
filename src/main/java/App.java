@@ -1,5 +1,6 @@
 import Classes.Gemstone;
 import Comparators.GemstoneCaratComparator;
+import Comparators.GemstoneNameComparator;
 import Enums.Clarity;
 import Enums.RequestType;
 import com.google.gson.Gson;
@@ -44,25 +45,7 @@ public class App {
             return;
         }
 
-        if(isRunning()){
-            this.menu();
-        }
-        else{
-            System.out.println("MySQL is not running");
-        }
-    }
-
-    public static boolean isRunning(){
-        boolean running;
-        try{
-            Socket socket = new Socket("127.0.0.1", 3306);
-            running = true;
-            socket.close();
-        }
-        catch (IOException e){
-            running = false;
-        }
-        return running;
+        this.menu();
     }
 
     private Set<Integer> getCache(){
@@ -83,7 +66,7 @@ public class App {
                 input = this.scanner.nextInt();
                 scanner.nextLine();
                 switch (input) {
-                    case 1 -> printGemstones(getAllGemstones());
+                    case 1 -> printAllGemstones(new GemstoneNameComparator());
                     case 2 -> printGemstoneById();
                     case 3 -> deleteGemstoneById();
                     case 4 -> insertGemstone();
@@ -97,7 +80,7 @@ public class App {
         }
     }
 
-    public ArrayList<Gemstone> getAllGemstones(){
+    private ArrayList<Gemstone> getAllGemstones(){
         return gsonParser.fromJson(requestHandler.makeRequest(RequestType.GETALL), TypeToken.getParameterized(ArrayList.class, Gemstone.class).getType());
     }
 

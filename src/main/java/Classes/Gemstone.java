@@ -51,8 +51,13 @@ public class Gemstone {
     }
 
     public static void printGemstones(Collection<Gemstone> gemstones){
+        System.out.printf("|%5s|%15s|%10s|%15s|%10s|\n", "Id", "Name", "Carats", "Colour", "Clarity");
+        for(int x=0; x<80; x++){
+            System.out.print("-");
+        }
+        System.out.println();
         for(Gemstone gemstone: gemstones){
-            System.out.println(gemstone);
+            System.out.printf("|%5d|%15s|%10.2f|%15s|%10s|\n", gemstone.id, gemstone.gemName, gemstone.carats, gemstone.colour, gemstone.clarity);
         }
     }
 }

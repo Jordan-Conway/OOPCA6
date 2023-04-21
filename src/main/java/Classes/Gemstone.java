@@ -30,6 +30,10 @@ public class Gemstone {
                 '}';
     }
 
+    public int getId() {
+        return id;
+    }
+
     public String getGemName() {
         return gemName;
     }

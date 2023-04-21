@@ -1,5 +1,6 @@
 import Classes.Gemstone;
 import Comparators.GemstoneCaratComparator;
+import Comparators.GemstoneIDComparator;
 import Comparators.GemstoneNameComparator;
 import Enums.Clarity;
 import Enums.RequestType;
@@ -62,15 +63,17 @@ public class App {
                 System.out.println("2. Search Gemstone By Id");
                 System.out.println("3. Delete Gemstone By Id");
                 System.out.println("4. Add a new Gemstone");
-                System.out.println("5. List all Gemstones sorted by carats");
+                System.out.println("5. List all Gemstones sorted by name");
+                System.out.println("6. List all Gemstones sorted by carats");
                 input = this.scanner.nextInt();
                 scanner.nextLine();
                 switch (input) {
-                    case 1 -> printAllGemstones(new GemstoneNameComparator());
+                    case 1 -> printAllGemstones(new GemstoneIDComparator());
                     case 2 -> printGemstoneById();
                     case 3 -> deleteGemstoneById();
                     case 4 -> insertGemstone();
-                    case 5 -> printAllGemstones(new GemstoneCaratComparator());
+                    case 5 -> printAllGemstones(new GemstoneNameComparator());
+                    case 6 -> printAllGemstones(new GemstoneCaratComparator());
                     case 0 -> exit = true;
                 }
             }

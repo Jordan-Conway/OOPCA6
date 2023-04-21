@@ -1,4 +1,4 @@
-package server;
+package Server;
 
 import Classes.Gemstone;
 import Classes.Request;

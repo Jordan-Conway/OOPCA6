@@ -3,6 +3,7 @@ package Classes;
 import Enums.Clarity;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class Gemstone {
     private final int id;
@@ -59,5 +60,18 @@ public class Gemstone {
         for(Gemstone gemstone: gemstones){
             System.out.printf("|%5d|%15s|%10.2f|%15s|%10s|\n", gemstone.id, gemstone.gemName, gemstone.carats, gemstone.colour, gemstone.clarity);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Gemstone gemstone = (Gemstone) o;
+        return id == gemstone.id && Double.compare(gemstone.carats, carats) == 0 && Objects.equals(gemName, gemstone.gemName) && Objects.equals(colour, gemstone.colour) && clarity == gemstone.clarity;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, gemName, carats, colour, clarity);
     }
 }

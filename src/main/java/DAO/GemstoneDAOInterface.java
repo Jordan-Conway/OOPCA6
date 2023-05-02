@@ -5,7 +5,7 @@ import java.util.Set;
 
 import Classes.Gemstone;
 
-public interface DAOInterface {
+public interface GemstoneDAOInterface {
     List<Gemstone> findAllGemstones();
 
     Gemstone findGemstoneById(int id);

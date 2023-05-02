@@ -12,7 +12,7 @@ import java.util.Set;
 import Classes.Gemstone;
 import Enums.Clarity;
 
-public class GemstoneDAO extends DAOBase implements DAOInterface {
+public class GemstoneDAO extends DAOBase implements GemstoneDAOInterface {
 
     @Override
     public List<Gemstone> findAllGemstones(){

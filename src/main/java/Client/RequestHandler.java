@@ -1,3 +1,5 @@
+package Client;
+
 import Classes.Request;
 import Enums.RequestType;
 import com.google.gson.Gson;

@@ -1,3 +1,5 @@
+package Client;
+
 import Classes.Gemstone;
 import Classes.Response;
 import Comparators.GemstoneCaratComparator;
@@ -17,7 +19,7 @@ import java.util.*;
 
 import static Classes.Gemstone.printGemstones;
 
-public class App {
+public class Client {
     public Socket socket;
     public OutputStream os;
     public PrintWriter out;
@@ -28,8 +30,8 @@ public class App {
     private RequestHandler requestHandler;
 
     public static void main(String[] args) {
-        App app = new App();
-        app.start();
+        Client client = new Client();
+        client.start();
     }
 
     public void start() {

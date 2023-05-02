@@ -127,7 +127,6 @@ public class Client {
     }
 
     public void insertGemstone(){
-        //TODO input validation
         boolean validInput = false;
         while(!validInput){
             try{

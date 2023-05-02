@@ -134,4 +134,23 @@ public class GemstoneDAO extends DAOBase implements DAOInterface {
 
         return toReturn;
     }
+
+    /**
+     *
+     * @return the id of the last id inserted
+     */
+    public int getLastId(){
+        try(Connection connection = this.getConnection()){
+            String query = "SELECT LAST_INSERT_ID()";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            System.out.println("Result Set: " + resultSet.getString("LAST_INSERT_ID()"));
+            return resultSet.getInt("id");
+        }
+        catch (SQLException e){
+            System.out.println("SQL Exception when getting LastId");
+        }
+
+        return -1;
+    }
 }

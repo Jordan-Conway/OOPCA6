@@ -128,27 +128,40 @@ public class Client {
 
     public void insertGemstone(){
         //TODO input validation
-        System.out.println("Enter the gemstone name");
-        String name = scanner.nextLine();
-        System.out.println("Enter the number of carats");
-        float carats = scanner.nextFloat();
-        scanner.nextLine();
-        System.out.println("Enter the colour of the gemstone");
-        String colour = scanner.nextLine();
-        System.out.println("Choose a clarity");
-        List<Clarity> clarityList = Arrays.asList(Clarity.values());
-        for(int i=0; i<clarityList.size(); i++){
-            System.out.println(i + 1 + ": " + clarityList.get(i));
+        boolean validInput = false;
+        while(!validInput){
+            try{
+                System.out.println("Enter the gemstone name");
+                String name = scanner.nextLine();
+                System.out.println("Enter the number of carats");
+                float carats = scanner.nextFloat();
+                scanner.nextLine();
+                System.out.println("Enter the colour of the gemstone");
+                String colour = scanner.nextLine();
+                System.out.println("Choose a clarity");
+                List<Clarity> clarityList = Arrays.asList(Clarity.values());
+                for(int i=0; i<clarityList.size(); i++){
+                    System.out.println(i + 1 + ": " + clarityList.get(i));
+                }
+                Clarity clarity = clarityList.get(scanner.nextInt() - 1);
+
+                validInput = true;
+
+                Gemstone gemstoneToInsert = new Gemstone(0, name, carats, colour, clarity);
+
+                String gemstoneToInsertJSON = gsonParser.toJson(gemstoneToInsert);
+
+                Response response = gsonParser.fromJson(requestHandler.makeRequest(RequestType.INSERT, gemstoneToInsertJSON), Response.class);
+
+                System.out.println(gsonParser.fromJson(response.getResponse(), String.class));
+            }catch (InputMismatchException e){
+                System.out.println("Invalid input, please try again");
+                validInput = false;
+                if(scanner.hasNextLine()){
+                    scanner.nextLine();
+                }
+            }
         }
-        Clarity clarity = clarityList.get(scanner.nextInt() - 1);
-
-        Gemstone gemstoneToInsert = new Gemstone(0, name, carats, colour, clarity);
-
-        String gemstoneToInsertJSON = gsonParser.toJson(gemstoneToInsert);
-
-        Response response = gsonParser.fromJson(requestHandler.makeRequest(RequestType.INSERT, gemstoneToInsertJSON), Response.class);
-
-        System.out.println(gsonParser.fromJson(response.getResponse(), String.class));
     }
 
     public void deleteGemstoneById(){

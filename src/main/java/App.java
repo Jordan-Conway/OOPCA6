@@ -1,9 +1,11 @@
 import Classes.Gemstone;
+import Classes.Response;
 import Comparators.GemstoneCaratComparator;
 import Comparators.GemstoneIDComparator;
 import Comparators.GemstoneNameComparator;
 import Enums.Clarity;
 import Enums.RequestType;
+import Enums.ResponseStatus;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -23,8 +25,6 @@ public class App {
     public Scanner scanner = new Scanner(System.in);
     public static Gson gsonParser = new Gson();
 
-    private Set<Integer> cache;
-
     private RequestHandler requestHandler;
 
     public static void main(String[] args) {
@@ -39,7 +39,6 @@ public class App {
             out = new PrintWriter(os, true);
             inStream = new Scanner(socket.getInputStream());
             this.requestHandler = new RequestHandler(out, inStream);
-            this.cache = getCache();
         }
         catch (IOException e){
             System.out.println("Server is not running");
@@ -47,10 +46,6 @@ public class App {
         }
 
         this.menu();
-    }
-
-    private Set<Integer> getCache(){
-        return gsonParser.fromJson(requestHandler.makeRequest(RequestType.GETIDS), TypeToken.getParameterized(Set.class, Integer.class).getType());
     }
 
     public void menu(){
@@ -84,7 +79,14 @@ public class App {
     }
 
     private ArrayList<Gemstone> getAllGemstones(){
-        return gsonParser.fromJson(requestHandler.makeRequest(RequestType.GETALL), TypeToken.getParameterized(ArrayList.class, Gemstone.class).getType());
+        String responseAsJSON = requestHandler.makeRequest(RequestType.GETALL);
+        Response response = gsonParser.fromJson(responseAsJSON, Response.class);
+        if(response.getResponseStatus() == ResponseStatus.OK){
+            return gsonParser.fromJson(response.getResponse(), TypeToken.getParameterized(ArrayList.class, Gemstone.class).getType());
+        }
+        else{
+            return new ArrayList<>();
+        }
     }
 
     public void printAllGemstones(Comparator<Gemstone> comparator){
@@ -111,15 +113,15 @@ public class App {
             return;
         }
 
-        if(this.cache.contains(input)){
-            Gemstone result = gsonParser.fromJson(requestHandler.makeRequest(RequestType.GETBYID, input), Gemstone.class);
-
-            if(result != null){ //if a result was found
-                System.out.println(result);
-                return;
-            }
+        String responseAsJSON = requestHandler.makeRequest(RequestType.GETBYID, input);
+        Response response = gsonParser.fromJson(responseAsJSON, Response.class);
+        if(response.getResponseStatus() == ResponseStatus.OK){
+            System.out.println(gsonParser.fromJson(response.getResponse(), Gemstone.class));
         }
-        System.out.println("No gemstone was found with id " + input);
+        else{
+            System.out.println("No gemstone was found with id " + input);
+        }
+
     }
 
     public void insertGemstone(){
@@ -142,9 +144,9 @@ public class App {
 
         String gemstoneToInsertJSON = gsonParser.toJson(gemstoneToInsert);
 
-        String response = gsonParser.fromJson(requestHandler.makeRequest(RequestType.INSERT, gemstoneToInsertJSON), String.class);
+        Response response = gsonParser.fromJson(requestHandler.makeRequest(RequestType.INSERT, gemstoneToInsertJSON), Response.class);
 
-        System.out.println(response);
+        System.out.println(gsonParser.fromJson(response.getResponse(), String.class));
     }
 
     public void deleteGemstoneById(){
@@ -155,9 +157,9 @@ public class App {
                 input = scanner.nextInt();
                 scanner.nextLine();
 
-                String response = gsonParser.fromJson(requestHandler.makeRequest(RequestType.DELETE, input), String.class);
+                Response response = gsonParser.fromJson(requestHandler.makeRequest(RequestType.DELETE, input), Response.class);
 
-                System.out.println(response);
+                System.out.println(gsonParser.fromJson(response.getResponse(), String.class));
                 break;
             }
             catch (InputMismatchException e){

@@ -2,9 +2,12 @@ package Server;
 
 import Classes.Gemstone;
 import Classes.Request;
+import Classes.Response;
 import DAO.GemstoneDAO;
 
+import Enums.ResponseStatus;
 import com.google.gson.*;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
@@ -13,11 +16,13 @@ import java.util.Set;
 
 
 public class ClientHandler implements Runnable{
+    private Set<Integer> cache;
     public static GemstoneDAO dao = new GemstoneDAO();
     public static Gson gsonParser = new Gson();
     BufferedReader socketReader;
     PrintWriter socketWriter;
     Socket socket;
+    String notFound = "Id not found in database";
 
     public ClientHandler(Socket socket){
         try{
@@ -28,6 +33,8 @@ public class ClientHandler implements Runnable{
             this.socketWriter = new PrintWriter(os, true);
 
             this.socket = socket;
+
+            this.cache = getCache();
         }
         catch(IOException e){
             e.printStackTrace();
@@ -46,13 +53,12 @@ public class ClientHandler implements Runnable{
                 switch (request.getRequestType()){
                     case GETALL -> returnAll();
                     case GETBYID -> {
-                        try {
-                            int id = Integer.parseInt(request.getParameter());
+                        try{
+                            int id = gsonParser.fromJson(request.getParameter(), Integer.class);
                             returnById(id);
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            System.out.println("No id was given");
-                        } catch (NumberFormatException e) {
-                            System.out.println("Invalid Id was given");
+                        }
+                        catch (JsonSyntaxException e){
+                            System.out.println("Malformed parameter");
                         }
                     }
                     case INSERT -> {
@@ -88,46 +94,70 @@ public class ClientHandler implements Runnable{
 
     public void returnAll(){
         List<Gemstone> gemstones = dao.findAllGemstones();
-        String resultJSON = gsonParser.toJson(gemstones);
-
+        Response response = new Response(ResponseStatus.OK, gsonParser.toJson(gemstones));
+        String resultJSON = gsonParser.toJson(response);
         socketWriter.println(resultJSON);
     }
 
     public void returnById(int id){
-        Gemstone gemstone = dao.findGemstoneById(id);
-        String resultJSON = gsonParser.toJson(gemstone);
-        socketWriter.println(resultJSON);
+        cache = getCache();
+        if(cache.contains(id)){
+            Gemstone gemstone = dao.findGemstoneById(id);
+            Response response;
+            if(gemstone != null){
+                response = new Response(ResponseStatus.OK, gsonParser.toJson(gemstone));
+                String resultJSON = gsonParser.toJson(response);
+                socketWriter.println(resultJSON);
+            }
+            else{
+                returnNotFound();
+            }
+        }
+        else{
+            returnNotFound();
+        }
     }
 
     public void insert(Gemstone gemstone){
         boolean success = dao.insertGemstone(gemstone);
-        String response;
+        Response response;
         if(success){
-            response = "Insert was successful";
+            response = new Response(ResponseStatus.OK, gsonParser.toJson("Insert was successful"));
+            cache = getCache();
         }
         else{
-            response = "Insert failed";
+            response = new Response(ResponseStatus.ERROR, gsonParser.toJson("Insert failed"));
         }
         socketWriter.println(gsonParser.toJson(response));
     }
 
     public void delete(int id){
         boolean success = dao.deleteGemstoneById(id);
-        String response;
+        Response response;
         if(success){
-            response = "Delete was successful";
+            response = new Response(ResponseStatus.OK, gsonParser.toJson("Delete was successful"));
+            cache = getCache();
         }
         else{
-            response = "Delete failed";
+            response = new Response(ResponseStatus.ERROR, gsonParser.toJson("Delete failed"));
         }
         socketWriter.println(gsonParser.toJson(response));
     }
 
     public void getIds(){
         Set<Integer> ids = dao.getIds();
-        String idsJSON = gsonParser.toJson(ids);
+        Response response = new Response(ResponseStatus.OK, gsonParser.toJson(ids));
+        socketWriter.println(gsonParser.toJson(response));
+    }
 
-        socketWriter.println(idsJSON);
+    private Set<Integer> getCache(){
+        return dao.getIds();
+    }
+
+    private void returnNotFound(){
+        Response response = new Response(ResponseStatus.ERROR, gsonParser.toJson(notFound));
+        String responseJSON = gsonParser.toJson(response);
+        socketWriter.println(responseJSON);
     }
 
 }
